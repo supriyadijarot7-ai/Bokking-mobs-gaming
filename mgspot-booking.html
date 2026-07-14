@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MG Spot — Booking PS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --navy-deep:#071322;
+  --navy:#0B1E3D;
+  --navy-card:#10274d;
+  --navy-line:#1c3c6e;
+  --gold:#D4AF37;
+  --gold-light:#F0D77B;
+  --cream:#F5F1E6;
+  --muted:#8FA3C7;
+  --green:#4ADE80;
+  --red:#F2545B;
+  --radius:14px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--navy-deep);
+  color:var(--cream);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+}
+#app{
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  background:var(--navy);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+header.top{
+  padding:22px 20px 16px;
+  background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+  border-bottom:1px solid var(--navy-line);
+  position:relative;
+}
+header.top .brand{
+  font-family:'Rajdhani',sans-serif;
+  font-weight:700;
+  font-size:26px;
+  letter-spacing:2px;
+  color:var(--gold-light);
+  text-transform:uppercase;
+}
+header.top .brand span{color:var(--cream);}
+header.top .tagline{
+  font-size:12.5px;
+  color:var(--muted);
+  margin-top:2px;
+  letter-spacing:0.3px;
+}
+header.top.admin-mode{
+  background:linear-gradient(180deg, #2a1a06 0%, #3d2608 100%);
+  border-bottom:1px solid var(--gold);
+}
+.admin-flag{
+  position:absolute; top:20px; right:16px;
+  background:var(--gold); color:var(--navy-deep);
+  font-size:10.5px; font-weight:700; padding:4px 10px;
+  border-radius:999px; letter-spacing:.5px;
+  font-family:'Rajdhani',sans-serif;
+}
+main{
+  flex:1;
+  padding:16px 16px 90px;
+  overflow-y:auto;
+}
+h2.section-title{
+  font-family:'Rajdhani',sans-serif;
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin:18px 0 10px;
+}
+h2.section-title:first-child{margin-top:0;}
+
+.chip-row{display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;}
+.chip{
+  flex:0 0 auto;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid var(--navy-line);
+  background:var(--navy-card);
+  color:var(--muted);
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.chip.active{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--navy-deep);
+}
+
+.unit-card{
+  position:relative;
+  background:var(--navy-card);
+  border:1px solid var(--navy-line);
+  border-radius:var(--radius);
+  clip-path:polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  padding:14px 16px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:border-color .15s;
+}
+.unit-card:active{border-color:var(--gold);}
+.unit-card.selected{border-color:var(--gold); background:#15305c;}
+.unit-card .row1{display:flex; justify-content:space-between; align-items:center;}
+.unit-card .name{font-weight:600; font-size:15px;}
+.unit-card .type{font-size:11.5px; color:var(--muted); margin-top:2px;}
+.status{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;}
+.status .dot{width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 1.6s infinite;}
+.status.busy .dot{background:var(--red); box-shadow:0 0 8px var(--red); animation:none;}
+.status.busy{color:var(--red);}
+.status.free{color:var(--green);}
+@keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.4;}}
+.unit-card .rate{font-size:12px; color:var(--gold-light); margin-top:6px;}
+
+.date-row{display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;}
+.date-pill{
+  flex:0 0 auto;
+  width:54px;
+  padding:8px 0;
+  text-align:center;
+  border-radius:12px;
+  border:1px solid var(--navy-line);
+  background:var(--navy-card);
+  cursor:pointer;
+}
+.date-pill.active{background:var(--gold); border-color:var(--gold);}
+.date-pill .d{font-size:11px; color:var(--muted); font-weight:600;}
+.date-pill.active .d{color:var(--navy-deep);}
+.date-pill .num{font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:var(--cream);}
+.date-pill.active .num{color:var(--navy-deep);}
+
+.slot-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+.slot-btn{
+  padding:9px 0;
+  text-align:center;
+  border-radius:9px;
+  border:1px solid var(--navy-line);
+  background:var(--navy-card);
+  color:var(--cream);
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+}
+.slot-btn.active{background:var(--gold); border-color:var(--gold); color:var(--navy-deep);}
+.slot-btn.disabled{opacity:.3; text-decoration:line-through; cursor:not-allowed;}
+
+.dur-row{display:grid; grid-template-columns:repeat(5,1fr); gap:6px;}
+.dur-btn{
+  padding:11px 2px;
+  text-align:center;
+  border-radius:10px;
+  border:1px solid var(--navy-line);
+  background:var(--navy-card);
+  cursor:pointer;
+}
+.dur-btn.active{border-color:var(--gold); background:#15305c;}
+.dur-btn .h{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px;}
+
+input[type=text], input[type=tel], input[type=number], select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid var(--navy-line);
+  background:var(--navy-card);
+  color:var(--cream);
+  font-size:14px;
+  margin-bottom:10px;
+  font-family:'Inter',sans-serif;
+}
+input::placeholder{color:var(--muted);}
+
+.summary{
+  background:var(--navy-card);
+  border:1px dashed var(--gold);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin:14px 0;
+}
+.summary .line{display:flex; justify-content:space-between; font-size:13px; padding:4px 0; color:var(--muted);}
+.summary .line b{color:var(--cream); font-weight:600;}
+.summary .total{display:flex; justify-content:space-between; align-items:baseline; margin-top:8px; padding-top:8px; border-top:1px solid var(--navy-line);}
+.summary .total .label{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;}
+.summary .total .val{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:24px; color:var(--gold-light);}
+.summary .dp{display:flex; justify-content:space-between; font-size:12.5px; color:var(--gold-light); margin-top:4px;}
+
+.notice{
+  background:rgba(212,175,55,.08);
+  border-left:3px solid var(--gold);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--gold-light);
+  line-height:1.5;
+  margin:12px 0;
+}
+
+.btn-primary{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:var(--gold);
+  color:var(--navy-deep);
+  font-weight:700;
+  font-size:15px;
+  letter-spacing:.3px;
+  cursor:pointer;
+  font-family:'Rajdhani',sans-serif;
+  text-transform:uppercase;
+}
+.btn-primary:disabled{opacity:.4; cursor:not-allowed;}
+.btn-wa{
+  width:100%;
+  padding:13px;
+  border:none;
+  border-radius:12px;
+  background:#25D366;
+  color:#04270f;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+  margin-top:10px;
+  font-family:'Rajdhani',sans-serif;
+  text-transform:uppercase;
+}
+.btn-secondary{
+  width:100%;
+  padding:13px;
+  border:1px solid var(--navy-line);
+  border-radius:12px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:600;
+  font-size:13.5px;
+  cursor:pointer;
+  margin-top:8px;
+}
+.btn-danger{
+  padding:8px 14px;
+  border:1px solid var(--red);
+  border-radius:8px;
+  background:transparent;
+  color:var(--red);
+  font-weight:600;
+  font-size:12px;
+  cursor:pointer;
+}
+.btn-logout{
+  padding:8px 14px;
+  border:1px solid var(--navy-line);
+  border-radius:8px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:600;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.success-wrap{text-align:center; padding:30px 10px;}
+.success-wrap .code{
+  font-family:'Rajdhani',sans-serif;
+  font-size:30px;
+  font-weight:700;
+  color:var(--gold-light);
+  letter-spacing:2px;
+  margin:14px 0;
+}
+.success-wrap .icon{font-size:44px;}
+
+nav.bottom{
+  position:fixed;
+  bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px;
+  display:flex;
+  background:var(--navy-deep);
+  border-top:1px solid var(--navy-line);
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+nav.bottom button{
+  flex:1;
+  position:relative;
+  background:none;
+  border:none;
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:600;
+  padding:6px 0;
+  cursor:pointer;
+  font-family:'Inter',sans-serif;
+}
+nav.bottom button .ic{display:block; font-size:18px; margin-bottom:2px;}
+nav.bottom button.active{color:var(--gold);}
+.nav-badge{
+  position:absolute; top:0; right:22%;
+  background:var(--red); color:#fff;
+  font-size:10px; font-weight:700;
+  min-width:16px; height:16px; border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  padding:0 3px;
+}
+
+.sched-unit{margin-bottom:16px;}
+.sched-unit .u-title{font-weight:600; font-size:13.5px; margin-bottom:6px; color:var(--gold-light);}
+.sched-slot{
+  display:flex; justify-content:space-between;
+  padding:8px 12px;
+  background:var(--navy-card);
+  border-radius:8px;
+  border-left:3px solid var(--red);
+  font-size:12.5px;
+  margin-bottom:6px;
+}
+.sched-empty{
+  padding:8px 12px;
+  font-size:12px;
+  color:var(--muted);
+  font-style:italic;
+}
+
+.booking-item{
+  background:var(--navy-card);
+  border:1px solid var(--navy-line);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:10px;
+}
+.booking-item.is-new{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold);}
+.booking-item .top-row{display:flex; justify-content:space-between; align-items:center;}
+.booking-item .unit-name{font-weight:600; font-size:14.5px;}
+.badge{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.5px;}
+.badge.active{background:var(--green); color:var(--navy-deep);}
+.badge.upcoming{background:var(--gold); color:var(--navy-deep);}
+.badge.done{background:var(--navy-line); color:var(--muted);}
+.badge.cancelled{background:var(--red); color:#fff;}
+.badge.new{background:var(--red); color:#fff;}
+.booking-item .detail{font-size:12.5px; color:var(--muted); margin-top:6px;}
+.booking-item .countdown{
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px;
+  font-weight:700;
+  color:var(--green);
+  margin-top:8px;
+}
+.booking-item .actions{display:flex; gap:8px; margin-top:10px;}
+.empty-state{text-align:center; padding:50px 20px; color:var(--muted); font-size:13px;}
+.loading{text-align:center; padding:30px; color:var(--muted); font-size:13px;}
+
+.admin-row{
+  background:var(--navy-card);
+  border:1px solid var(--navy-line);
+  border-radius:var(--radius);
+  padding:12px 14px;
+  margin-bottom:10px;
+}
+.admin-row .arow{display:flex; gap:8px;}
+.admin-row .arow input{margin-bottom:8px;}
+.admin-row .af-name{flex:2;}
+.admin-row .af-type{flex:1;}
+.admin-row .af-rate{flex:1;}
+
+.admin-subnav{display:flex; gap:8px; margin-bottom:14px;}
+.admin-subnav .chip{flex:1; text-align:center;}
+
+.toast{
+  position:fixed; top:14px; left:50%; transform:translateX(-50%);
+  max-width:440px; width:calc(100% - 32px);
+  background:var(--gold); color:var(--navy-deep);
+  padding:12px 16px; border-radius:12px;
+  font-size:13px; font-weight:600;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  z-index:999;
+  animation:toastIn .25s ease-out;
+}
+@keyframes toastIn{ from{opacity:0; transform:translate(-50%,-10px);} to{opacity:1; transform:translate(-50%,0);} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top" id="topHeader">
+    <div class="brand"><span>MOBS</span> GAMING</div>
+    <div class="tagline" id="tagline">MG Spot — Booking PS Online</div>
+  </header>
+  <main id="main"></main>
+  <nav class="bottom" id="bottomNav">
+    <button data-tab="book" class="active"><span class="ic">🎮</span>Booking</button>
+    <button data-tab="schedule"><span class="ic">🗓️</span>Jadwal</button>
+    <button data-tab="mybook"><span class="ic">🎟️</span>Booking Saya</button>
+    <button data-tab="admin"><span class="ic">⚙️</span>Admin<span class="nav-badge" id="adminBadge" style="display:none;">0</span></button>
+  </nav>
+</div>
+
+<script>
+// ====== KONFIGURASI — SESUAIKAN DI SINI ======
+const KASIR_WA_NUMBER = '6281234567890'; // ganti dengan no. WA kasir, format 62xxxxxxxxxx (tanpa + / 0 di depan)
+const ADMIN_PIN = '1234'; // ganti PIN admin di sini
+const DP_PERCENT = 0.5; // minimal DP 50%
+const ARRIVAL_BUFFER_MIN = 10; // datang maks 10 menit sebelum jam mulai
+const POLL_INTERVAL_MS = 8000; // seberapa sering cek booking baru
+// ================================================
+
+const DEFAULT_UNITS = [
+  {id:'vip-plus', name:'VIP Room+', type:'VIP', rate:35000},
+  {id:'vip-1', name:'VIP Room 1', type:'VIP', rate:25000},
+  {id:'vip-2', name:'VIP Room 2', type:'VIP', rate:25000},
+  {id:'reg-ps3-1', name:'Regular 1 (PS3)', type:'PS3', rate:7000},
+  {id:'reg-ps3-2', name:'Regular 2 (PS3)', type:'PS3', rate:7000},
+  {id:'reg-ps3-3', name:'Regular 3 (PS3)', type:'PS3', rate:7000},
+  {id:'reg-ps4-4', name:'Regular 4 (PS4)', type:'PS4', rate:10000},
+  {id:'reg-ps4-5', name:'Regular 5 (PS4)', type:'PS4', rate:10000},
+  {id:'reg-ps4-6', name:'Regular 6 (PS4)', type:'PS4', rate:10000},
+  {id:'reg-ps4-7', name:'Regular 7 (PS4)', type:'PS4', rate:10000},
+];
+const OPEN_HOUR = 10, CLOSE_HOUR = 23;
+const BOOKINGS_KEY = 'mgspot-bookings-v1';
+const UNITS_KEY = 'mgspot-units-v1';
+const SEEN_KEY = 'mgspot-admin-unseen-v1'; // personal (per-device), bukan shared
+
+let state = {
+  tab:'book',
+  bookings:[],
+  units:[],
+  loaded:false,
+  filterType:'ALL',
+  selectedUnit:null,
+  selectedDate: todayStr(),
+  selectedStart:null,
+  selectedDuration:1,
+  schedDate: todayStr(),
+  isAdmin:false,
+  pendingUnits:[],
+  adminSubTab:'incoming',
+  adminDateFilter:'today',
+  unseenIds:[],
+  knownIds:new Set(),
+};
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmtRupiah(n){ return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
+function timeToMin(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function minToTime(m){ const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+function formatPhoneForWa(phone){
+  let d = (phone||'').replace(/\D/g,'');
+  if(d.startsWith('0')) d = '62'+d.slice(1);
+  else if(!d.startsWith('62')) d = '62'+d;
+  return d;
+}
+
+async function loadBookings(){
+  try{
+    const res = await window.storage.get(BOOKINGS_KEY, true);
+    return res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ return []; }
+}
+async function saveBookings(){ await window.storage.set(BOOKINGS_KEY, JSON.stringify(state.bookings), true); }
+
+async function loadUnits(){
+  try{
+    const res = await window.storage.get(UNITS_KEY, true);
+    state.units = res && res.value ? JSON.parse(res.value) : null;
+  }catch(e){ state.units = null; }
+  if(!state.units || state.units.length===0){
+    state.units = JSON.parse(JSON.stringify(DEFAULT_UNITS));
+    await saveUnits();
+  }
+}
+async function saveUnits(){ await window.storage.set(UNITS_KEY, JSON.stringify(state.units), true); }
+
+async function loadSeen(){
+  try{
+    const res = await window.storage.get(SEEN_KEY, false);
+    state.unseenIds = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ state.unseenIds = []; }
+}
+async function saveSeen(){ await window.storage.set(SEEN_KEY, JSON.stringify(state.unseenIds), false); }
+
+function overlaps(unitId, date, start, end, excludeId){
+  return state.bookings.some(b=>{
+    if(b.unitId!==unitId || b.date!==date || b.status==='cancelled') return false;
+    if(excludeId && b.id===excludeId) return false;
+    return timeToMin(start) < timeToMin(b.endTime) && timeToMin(end) > timeToMin(b.startTime);
+  });
+}
+
+function unitStatusNow(unitId){
+  const now = new Date();
+  const nowDate = now.toISOString().slice(0,10);
+  const nowMin = now.getHours()*60+now.getMinutes();
+  const active = state.bookings.find(b=> b.unitId===unitId && b.date===nowDate && b.status!=='cancelled' &&
+    nowMin >= timeToMin(b.startTime) && nowMin < timeToMin(b.endTime));
+  if(active) return {busy:true, until:active.endTime};
+  return {busy:false};
+}
+
+function calcPrice(rate,h){ return rate*h; }
+function generateSlots(){
+  const slots=[];
+  for(let m=OPEN_HOUR*60; m<=CLOSE_HOUR*60-60; m+=30){ slots.push(minToTime(m)); }
+  return slots;
+}
+function bookingStatusLabel(b){
+  if(b.status==='cancelled') return {key:'cancelled', label:'Dibatalkan'};
+  const now = new Date();
+  const startDT = new Date(b.date+'T'+b.startTime);
+  const endDT = new Date(b.date+'T'+b.endTime);
+  if(now>=startDT && now<endDT) return {key:'active', label:'Sedang Main'};
+  if(now>=endDT) return {key:'done', label:'Selesai'};
+  return {key:'upcoming', label:'Akan Datang'};
+}
+
+function updateHeaderMode(){
+  const header = document.getElementById('topHeader');
+  const tagline = document.getElementById('tagline');
+  if(state.tab==='admin' && state.isAdmin){
+    header.classList.add('admin-mode');
+    if(!header.querySelector('.admin-flag')){
+      const flag = document.createElement('div');
+      flag.className='admin-flag'; flag.textContent='MODE ADMIN';
+      header.appendChild(flag);
+    }
+    tagline.textContent = 'Dashboard Kasir — MG Spot';
+  } else {
+    header.classList.remove('admin-mode');
+    const flag = header.querySelector('.admin-flag');
+    if(flag) flag.remove();
+    tagline.textContent = 'MG Spot — Booking PS Online';
+  }
+}
+
+function updateAdminBadge(){
+  const badge = document.getElementById('adminBadge');
+  const count = state.isAdmin ? state.unseenIds.length : 0;
+  if(count>0){ badge.style.display='flex'; badge.textContent = count>9?'9+':count; }
+  else{ badge.style.display='none'; }
+}
+
+function render(){
+  updateHeaderMode();
+  updateAdminBadge();
+  const main = document.getElementById('main');
+  if(!state.loaded){ main.innerHTML='<div class="loading">Memuat data booking…</div>'; return; }
+  if(state.tab==='book') return renderBook(main);
+  if(state.tab==='schedule') return renderSchedule(main);
+  if(state.tab==='mybook') return renderMyBooking(main);
+  if(state.tab==='admin') return renderAdmin(main);
+}
+
+function renderBook(main){
+  const types = ['ALL', ...Array.from(new Set(state.units.map(u=>u.type)))];
+  const units = state.units.filter(u=> state.filterType==='ALL' || u.type===state.filterType);
+
+  let html = `<h2 class="section-title">Pilih Unit</h2>
+  <div class="chip-row">${types.map(t=>`<div class="chip ${state.filterType===t?'active':''}" data-action="filter" data-val="${t}">${t}</div>`).join('')}</div>`;
+
+  html += `<div style="margin-top:12px;">`;
+  units.forEach(u=>{
+    const st = unitStatusNow(u.id);
+    const sel = state.selectedUnit===u.id;
+    html += `<div class="unit-card ${sel?'selected':''}" data-action="selectUnit" data-val="${u.id}">
+      <div class="row1">
+        <div>
+          <div class="name">${u.name}</div>
+          <div class="type">${u.type}</div>
+        </div>
+        <div class="status ${st.busy?'busy':'free'}"><span class="dot"></span>${st.busy? 'Terisi s/d '+st.until : 'Kosong'}</div>
+      </div>
+      <div class="rate">${fmtRupiah(u.rate)}/jam</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  if(state.selectedUnit){
+    const unit = state.units.find(u=>u.id===state.selectedUnit);
+    if(!unit){ state.selectedUnit=null; main.innerHTML=html; attachHandlers(); return; }
+    html += `<h2 class="section-title">Pilih Tanggal</h2><div class="date-row">${renderDatePills()}</div>`;
+    html += `<h2 class="section-title">Jam Mulai</h2><div class="slot-grid">${renderSlots(unit)}</div>`;
+    html += `<h2 class="section-title">Durasi (maks 5 jam)</h2><div class="dur-row">${renderDurations(unit)}</div>`;
+
+    if(state.selectedStart){
+      const endMin = timeToMin(state.selectedStart) + state.selectedDuration*60;
+      const price = calcPrice(unit.rate, state.selectedDuration);
+      const dp = price*DP_PERCENT;
+      html += `<div class="summary">
+        <div class="line"><span>Unit</span><b>${unit.name}</b></div>
+        <div class="line"><span>Tanggal</span><b>${fmtDateID(state.selectedDate)}</b></div>
+        <div class="line"><span>Jam</span><b>${state.selectedStart} - ${minToTime(endMin)}</b></div>
+        <div class="line"><span>Durasi</span><b>${state.selectedDuration} Jam</b></div>
+        <div class="total"><span class="label">Total</span><span class="val">${fmtRupiah(price)}</span></div>
+        <div class="dp"><span>DP minimal (50%)</span><b>${fmtRupiah(dp)}</b></div>
+      </div>
+      <div class="notice">📌 Booking dianggap sah setelah <b>DP minimal 50%</b> dari total dibayarkan/dikonfirmasi ke kasir.<br>⏰ Harap datang selambatnya <b>${ARRIVAL_BUFFER_MIN} menit sebelum</b> jam sesi dimulai, jika tidak slot dapat hangus.</div>
+      <h2 class="section-title">Data Kamu</h2>
+      <input type="text" id="custName" placeholder="Nama" value="${state.customerName||''}">
+      <input type="tel" id="custPhone" placeholder="No. HP / WhatsApp" value="${state.customerPhone||''}">
+      <button class="btn-primary" data-action="confirmBooking">Konfirmasi Booking</button>`;
+    }
+  }
+
+  main.innerHTML = html;
+  attachHandlers();
+}
+
+function fmtDateID(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return d.toLocaleDateString('id-ID',{weekday:'short', day:'numeric', month:'short'});
+}
+
+function renderDatePills(){
+  let html='';
+  for(let i=0;i<7;i++){
+    const d = new Date(); d.setDate(d.getDate()+i);
+    const ds = d.toISOString().slice(0,10);
+    const dayName = d.toLocaleDateString('id-ID',{weekday:'short'});
+    html += `<div class="date-pill ${state.selectedDate===ds?'active':''}" data-action="selectDate" data-val="${ds}">
+      <div class="d">${dayName}</div><div class="num">${d.getDate()}</div>
+    </div>`;
+  }
+  return html;
+}
+
+function renderSlots(unit){
+  const slots = generateSlots();
+  const nowD = todayStr(); const nowMin = new Date().getHours()*60+new Date().getMinutes();
+  return slots.map(s=>{
+    let disabled=false;
+    const dur = state.selectedDuration||1;
+    const endMin = timeToMin(s)+dur*60;
+    if(overlaps(unit.id, state.selectedDate, s, minToTime(endMin))) disabled=true;
+    if(state.selectedDate===nowD && timeToMin(s) < nowMin) disabled=true;
+    if(endMin > CLOSE_HOUR*60) disabled=true;
+    return `<div class="slot-btn ${state.selectedStart===s?'active':''} ${disabled?'disabled':''}"
+      ${disabled?'':`data-action="selectStart" data-val="${s}"`}>${s}</div>`;
+  }).join('');
+}
+
+function renderDurations(unit){
+  const opts = [1,2,3,4,5];
+  return opts.map(h=>{
+    return `<div class="dur-btn ${state.selectedDuration===h?'active':''}" data-action="selectDuration" data-val="${h}">
+      <div class="h">${h}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSchedule(main){
+  let html = `<h2 class="section-title">Jadwal</h2><div class="date-row">${renderSchedDatePills()}</div>`;
+  state.units.forEach(u=>{
+    const dayBookings = state.bookings.filter(b=> b.unitId===u.id && b.date===state.schedDate && b.status!=='cancelled')
+      .sort((a,b)=> timeToMin(a.startTime)-timeToMin(b.startTime));
+    html += `<div class="sched-unit"><div class="u-title">${u.name} <span style="color:var(--muted); font-weight:400;">(${u.type})</span></div>`;
+    if(dayBookings.length===0){
+      html += `<div class="sched-empty">Kosong sepanjang hari</div>`;
+    }else{
+      dayBookings.forEach(b=>{
+        html += `<div class="sched-slot"><span>${b.startTime} - ${b.endTime}</span><span>${b.customerName}</span></div>`;
+      });
+    }
+    html += `</div>`;
+  });
+  main.innerHTML = html;
+  attachHandlers();
+}
+
+function renderSchedDatePills(){
+  let html='';
+  for(let i=0;i<7;i++){
+    const d = new Date(); d.setDate(d.getDate()+i);
+    const ds = d.toISOString().slice(0,10);
+    const dayName = d.toLocaleDateString('id-ID',{weekday:'short'});
+    html += `<div class="date-pill ${state.schedDate===ds?'active':''}" data-action="selectSchedDate" data-val="${ds}">
+      <div class="d">${dayName}</div><div class="num">${d.getDate()}</div>
+    </div>`;
+  }
+  return html;
+}
+
+function renderMyBooking(main){
+  let html = `<h2 class="section-title">Cari Booking Kamu</h2>
+    <input type="tel" id="lookupPhone" placeholder="Masukkan No. HP" value="${state.lookupPhone||''}">
+    <button class="btn-primary" data-action="lookupBookings">Cari</button>`;
+
+  if(state.lookupPhone){
+    const mine = state.bookings.filter(b=> b.phone===state.lookupPhone && b.status!=='cancelled')
+      .sort((a,b)=> (a.date+a.startTime).localeCompare(b.date+b.startTime));
+    html += `<div style="margin-top:18px;">`;
+    if(mine.length===0){
+      html += `<div class="empty-state">Belum ada booking dengan nomor ini.</div>`;
+    }else{
+      mine.forEach(b=>{
+        const unit = state.units.find(u=>u.id===b.unitId);
+        const st = bookingStatusLabel(b);
+        html += `<div class="booking-item">
+          <div class="top-row"><span class="unit-name">${unit?unit.name:b.unitId}</span><span class="badge ${st.key}">${st.label}</span></div>
+          <div class="detail">${fmtDateID(b.date)} · ${b.startTime} - ${b.endTime} · ${fmtRupiah(b.price)}</div>
+          <div class="detail">Kode: ${b.id}</div>`;
+        if(st.key==='active'){
+          html += `<div class="countdown" data-countdown="${new Date(b.date+'T'+b.endTime).getTime()}">--:--</div>`;
+        }
+        if(st.key==='upcoming'){
+          html += `<div style="margin-top:8px;"><button class="btn-danger" data-action="cancelBooking" data-val="${b.id}">Batalkan</button></div>`;
+        }
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+  }
+  main.innerHTML = html;
+  attachHandlers();
+  startCountdowns();
+}
+
+function renderAdmin(main){
+  if(!state.isAdmin){
+    main.innerHTML = `<div class="empty-state">Masuk untuk mengelola booking, unit &amp; harga.</div>
+      <button class="btn-primary" data-action="adminLogin">Masuk Admin</button>`;
+    attachHandlers();
+    return;
+  }
+  let html = `<div class="admin-subnav">
+    <div class="chip ${state.adminSubTab==='incoming'?'active':''}" data-action="adminSub" data-val="incoming">🔔 Booking Masuk</div>
+    <div class="chip ${state.adminSubTab==='units'?'active':''}" data-action="adminSub" data-val="units">🛠️ Kelola Unit</div>
+  </div>`;
+
+  if(state.adminSubTab==='incoming'){
+    html += renderAdminIncoming();
+  } else {
+    html += renderAdminUnits();
+  }
+  html += `<button class="btn-logout" style="margin-top:16px; width:100%;" data-action="adminLogout">Keluar Mode Admin</button>`;
+  main.innerHTML = html;
+  attachHandlers();
+
+  if(state.adminSubTab==='units'){
+    main.querySelectorAll('.admin-row input').forEach(inp=>{
+      inp.oninput = ()=>{
+        const idx = parseInt(inp.getAttribute('data-idx'));
+        const field = inp.getAttribute('data-field');
+        state.pendingUnits[idx][field] = field==='rate' ? parseInt(inp.value||0) : inp.value;
+      };
+    });
+  }
+  if(state.adminSubTab==='incoming'){
+    // begitu admin melihat tab ini, tandai semua sudah dilihat
+    if(state.unseenIds.length>0){
+      state.unseenIds = [];
+      saveSeen();
+      updateAdminBadge();
+    }
+  }
+}
+
+function renderAdminIncoming(){
+  let html = `<div class="chip-row" style="margin-bottom:14px;">
+    <div class="chip ${state.adminDateFilter==='today'?'active':''}" data-action="adminDateFilter" data-val="today">Hari Ini</div>
+    <div class="chip ${state.adminDateFilter==='all'?'active':''}" data-action="adminDateFilter" data-val="all">Semua</div>
+  </div>`;
+  let list = state.bookings.slice();
+  if(state.adminDateFilter==='today') list = list.filter(b=> b.date===todayStr());
+  list.sort((a,b)=> b.createdAt - a.createdAt);
+
+  if(list.length===0){
+    html += `<div class="empty-state">Belum ada booking${state.adminDateFilter==='today'?' hari ini':''}.</div>`;
+    return html;
+  }
+
+  list.forEach(b=>{
+    const unit = state.units.find(u=>u.id===b.unitId);
+    const st = bookingStatusLabel(b);
+    const isNew = state.unseenIds.includes(b.id);
+    const waCust = `https://wa.me/${formatPhoneForWa(b.phone)}`;
+    html += `<div class="booking-item ${isNew?'is-new':''}">
+      <div class="top-row">
+        <span class="unit-name">${b.customerName}${isNew?' <span class=\"badge new\">BARU</span>':''}</span>
+        <span class="badge ${st.key}">${st.label}</span>
+      </div>
+      <div class="detail">${unit?unit.name:b.unitId} · ${fmtDateID(b.date)} · ${b.startTime}-${b.endTime}</div>
+      <div class="detail">${fmtRupiah(b.price)} · DP min ${fmtRupiah(b.price*DP_PERCENT)}</div>
+      <div class="detail">📞 ${b.phone} · Kode: ${b.id}</div>
+      <div class="actions">
+        <a href="${waCust}" target="_blank" style="flex:1; text-decoration:none;"><button class="btn-secondary" style="margin-top:0;">💬 Hubungi</button></a>
+        ${st.key==='upcoming'||st.key==='active' ? `<button class="btn-danger" data-action="cancelBooking" data-val="${b.id}">Batalkan</button>` : ''}
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderAdminUnits(){
+  let html = `<h2 class="section-title" style="margin-top:0;">Kelola Unit &amp; Harga</h2>`;
+  state.pendingUnits.forEach((u,i)=>{
+    html += `<div class="admin-row">
+      <div class="arow">
+        <input type="text" class="af-name" data-idx="${i}" data-field="name" value="${u.name}" placeholder="Nama unit">
+      </div>
+      <div class="arow">
+        <input type="text" class="af-type" data-idx="${i}" data-field="type" value="${u.type}" placeholder="Tipe (VIP/PS4/PS3..)">
+        <input type="number" class="af-rate" data-idx="${i}" data-field="rate" value="${u.rate}" placeholder="Tarif/jam">
+      </div>
+      <button class="btn-danger" data-action="deleteUnit" data-val="${i}">Hapus Unit</button>
+    </div>`;
+  });
+  html += `<button class="btn-secondary" data-action="addUnit">+ Tambah Unit Baru</button>
+    <button class="btn-primary" style="margin-top:14px;" data-action="saveUnits">Simpan Semua Perubahan</button>
+    <div class="notice">Perubahan tarif/unit langsung berlaku untuk semua pelanggan yang membuka halaman booking ini.</div>`;
+  return html;
+}
+
+function startCountdowns(){
+  clearInterval(window.__cdInterval);
+  window.__cdInterval = setInterval(()=>{
+    document.querySelectorAll('[data-countdown]').forEach(el=>{
+      const end = parseInt(el.getAttribute('data-countdown'));
+      const diff = end - Date.now();
+      if(diff<=0){ el.textContent='Waktu habis'; return; }
+      const mm = Math.floor(diff/60000), ss = Math.floor((diff%60000)/1000);
+      el.textContent = `Sisa ${mm}:${String(ss).padStart(2,'0')}`;
+    });
+  },1000);
+}
+
+function buildWaMessage(booking, unit){
+  const dp = booking.price*DP_PERCENT;
+  return `*BOOKING BARU - MG SPOT*
+Nama: ${booking.customerName}
+No. HP: ${booking.phone}
+Tanggal: ${fmtDateID(booking.date)}
+Jam: ${booking.startTime} - ${booking.endTime}
+Unit: ${unit.name}
+Durasi: ${booking.durationHours} Jam
+Total: ${fmtRupiah(booking.price)}
+DP min (50%): ${fmtRupiah(dp)}
+Kode Booking: ${booking.id}`;
+}
+
+function showToast(msg){
+  const existing = document.querySelector('.toast');
+  if(existing) existing.remove();
+  const t = document.createElement('div');
+  t.className='toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 4500);
+}
+
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [880,1180].forEach((freq,i)=>{
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type='sine'; o.frequency.value=freq;
+      o.connect(g); g.connect(ctx.destination);
+      const t0 = ctx.currentTime + i*0.15;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.2, t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+0.13);
+      o.start(t0); o.stop(t0+0.15);
+    });
+  }catch(e){ /* audio tidak tersedia, abaikan */ }
+}
+
+function attachHandlers(){
+  document.querySelectorAll('[data-action]').forEach(el=>{
+    el.onclick = async ()=>{
+      const action = el.getAttribute('data-action');
+      const val = el.getAttribute('data-val');
+      if(action==='filter'){ state.filterType=val; state.selectedUnit=null; }
+      if(action==='selectUnit'){ state.selectedUnit=val; state.selectedStart=null; }
+      if(action==='selectDate'){ state.selectedDate=val; state.selectedStart=null; }
+      if(action==='selectStart'){ state.selectedStart=val; }
+      if(action==='selectDuration'){ state.selectedDuration=parseInt(val); state.selectedStart=null; }
+      if(action==='selectSchedDate'){ state.schedDate=val; }
+      if(action==='lookupBookings'){
+        state.lookupPhone = document.getElementById('lookupPhone').value.trim();
+      }
+      if(action==='cancelBooking'){
+        if(confirm('Batalkan booking ini?')){
+          const b = state.bookings.find(x=>x.id===val);
+          if(b){ b.status='cancelled'; await saveBookings(); }
+        }
+      }
+      if(action==='adminLogin'){
+        const pin = prompt('Masukkan PIN Admin:');
+        if(pin===ADMIN_PIN){
+          state.isAdmin=true;
+          state.pendingUnits = JSON.parse(JSON.stringify(state.units));
+          state.knownIds = new Set(state.bookings.map(b=>b.id));
+        } else if(pin!==null){ alert('PIN salah.'); }
+      }
+      if(action==='adminLogout'){ state.isAdmin=false; state.tab='book';
+        document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
+        document.querySelector('nav.bottom button[data-tab="book"]').classList.add('active');
+      }
+      if(action==='adminSub'){ state.adminSubTab=val; }
+      if(action==='adminDateFilter'){ state.adminDateFilter=val; }
+      if(action==='addUnit'){
+        state.pendingUnits.push({id:'unit-'+Date.now().toString(36), name:'Unit Baru', type:'PS4', rate:10000});
+      }
+      if(action==='deleteUnit'){
+        if(confirm('Hapus unit ini?')) state.pendingUnits.splice(parseInt(val),1);
+      }
+      if(action==='saveUnits'){
+        const invalid = state.pendingUnits.find(u=> !u.name.trim() || !u.type.trim() || !u.rate || u.rate<=0);
+        if(invalid){ alert('Pastikan semua unit punya nama, tipe, dan tarif yang valid.'); return; }
+        state.units = JSON.parse(JSON.stringify(state.pendingUnits));
+        await saveUnits();
+        alert('Perubahan tersimpan.');
+      }
+      if(action==='confirmBooking'){
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        if(!name || !phone){ alert('Isi nama dan no. HP dulu ya.'); return; }
+        state.customerName=name; state.customerPhone=phone;
+        const unit = state.units.find(u=>u.id===state.selectedUnit);
+        const endMin = timeToMin(state.selectedStart)+state.selectedDuration*60;
+        const endTime = minToTime(endMin);
+        if(overlaps(unit.id, state.selectedDate, state.selectedStart, endTime)){
+          alert('Maaf, slot ini baru saja dibooking orang lain. Pilih jam lain ya.');
+          state.selectedStart=null; render(); return;
+        }
+        const booking = {
+          id: 'MG'+Date.now().toString(36).toUpperCase().slice(-6),
+          unitId: unit.id, date: state.selectedDate,
+          startTime: state.selectedStart, endTime,
+          durationHours: state.selectedDuration,
+          price: calcPrice(unit.rate, state.selectedDuration),
+          customerName:name, phone, status:'confirmed', createdAt: Date.now()
+        };
+        state.bookings.push(booking);
+        state.knownIds.add(booking.id);
+        await saveBookings();
+        showSuccess(booking, unit);
+        return;
+      }
+      render();
+    };
+  });
+}
+
+function showSuccess(booking, unit){
+  const main = document.getElementById('main');
+  const dp = booking.price*DP_PERCENT;
+  const waText = encodeURIComponent(buildWaMessage(booking, unit));
+  const waLink = `https://wa.me/${KASIR_WA_NUMBER}?text=${waText}`;
+  main.innerHTML = `<div class="success-wrap">
+    <div class="icon">✅</div>
+    <div style="margin-top:10px; color:var(--muted); font-size:13px;">Booking berhasil!</div>
+    <div class="code">${booking.id}</div>
+    <div style="font-size:14px; margin-bottom:4px;"><b>${unit.name}</b></div>
+    <div style="font-size:13px; color:var(--muted);">${fmtDateID(booking.date)} · ${booking.startTime} - ${booking.endTime}</div>
+    <div style="font-size:20px; font-family:'Rajdhani',sans-serif; font-weight:700; color:var(--gold-light); margin-top:10px;">${fmtRupiah(booking.price)}</div>
+    <div style="font-size:12px; color:var(--muted); margin-top:4px;">DP minimal (50%): ${fmtRupiah(dp)}</div>
+    <div class="notice" style="text-align:left; margin-top:16px;">📌 Segera kirim konfirmasi ke kasir via WhatsApp di bawah ini, lalu transfer DP minimal 50%.<br>⏰ Datang selambatnya ${ARRIVAL_BUFFER_MIN} menit sebelum jam mulai.</div>
+    <a href="${waLink}" target="_blank" style="text-decoration:none;"><button class="btn-wa">📲 Kirim Konfirmasi ke Kasir</button></a>
+    <button class="btn-primary" style="margin-top:10px;" data-action="backToBook">Booking Lagi</button>
+  </div>`;
+  main.querySelector('[data-action="backToBook"]').onclick = ()=>{
+    state.selectedUnit=null; state.selectedStart=null; state.selectedDuration=1;
+    render();
+  };
+}
+
+document.querySelectorAll('nav.bottom button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.tab = btn.getAttribute('data-tab');
+    render();
+  };
+});
+
+async function pollBookings(){
+  const fresh = await loadBookings();
+  const freshIds = new Set(fresh.map(b=>b.id));
+  const newIds = [...freshIds].filter(id=> !state.knownIds.has(id));
+  state.bookings = fresh;
+
+  if(state.isAdmin && newIds.length>0){
+    state.unseenIds = Array.from(new Set([...state.unseenIds, ...newIds]));
+    saveSeen();
+    const firstNew = fresh.find(b=>b.id===newIds[0]);
+    const u = state.units.find(x=>x.id===firstNew.unitId);
+    showToast(`🔔 Booking baru: ${firstNew.customerName} — ${u?u.name:''}${newIds.length>1?` (+${newIds.length-1} lainnya)`:''}`);
+    playBeep();
+  }
+  state.knownIds = freshIds;
+  updateAdminBadge();
+
+  // refresh tampilan otomatis hanya di tab tanpa input teks aktif, biar tidak ganggu yang lagi ngetik
+  if(state.tab==='admin' || state.tab==='schedule'){ render(); }
+}
+
+(async function init(){
+  await Promise.all([loadBookings().then(b=>state.bookings=b), loadUnits(), loadSeen()]);
+  state.knownIds = new Set(state.bookings.map(b=>b.id));
+  state.loaded = true;
+  render();
+  setInterval(pollBookings, POLL_INTERVAL_MS);
+})();
+</script>
+</body>
+</html>
